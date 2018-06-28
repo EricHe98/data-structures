@@ -9,10 +9,10 @@ public class BoardGamePlayer {
 	Player[] playerArray;
 	boolean gameOver; // indicates if a game has yet to be played/is in progress
 	int turn; // indicates which player's turn it is
-	int winner;
 	Random r = new Random();
 	int pointsThreshold = 40;
 	boolean verbose = false;
+	int numGamesPlayed;
 	
 	public BoardGamePlayer(DoublyLinkedList<BoardSpace> gameBoard, int numPlayers) {
 		this.gameBoard = gameBoard;
@@ -21,15 +21,16 @@ public class BoardGamePlayer {
 		for (int i = 0; i < numPlayers; i++) {
 			playerArray[i] = new Player(this.gameBoard);
 		}
-		turn = 0;
-		gameOver = false;
+		this.turn = 0;
+		this.gameOver = false;
+		this.numGamesPlayed = 0;
 	}
 	
 	public BoardGamePlayer(DoublyLinkedList<BoardSpace> gameBoard) {
 		this(gameBoard, 1);
 	}
 	
-	public int[] playGame() {
+	public void playGame() {
 		while (!gameOver) {
 			if (verbose) {
 				System.out.println("Player " + turn + " is taking a turn.");
@@ -37,9 +38,10 @@ public class BoardGamePlayer {
 			this.takeTurn(turn);
 			this.checkIfWon(turn);
 			this.incrementTurn();
+			if (verbose) {
+				this.printBoardState();	
+			}
 		}
-		int[] gameInfo = this.reportGameInfo();
-		return gameInfo;
 	}
 	
 	// move player up, send other player back if needed
@@ -47,6 +49,7 @@ public class BoardGamePlayer {
 		boolean sameRow;
 		boolean sameCol;
 		Player p = playerArray[playerIndex];
+		p.incrementMoves();
 		int diceRoll = r.nextInt(6) + 1; // roll dice
 		if (verbose) {
 			System.out.println("Player is currently at row " +
@@ -98,8 +101,9 @@ public class BoardGamePlayer {
 				if (verbose) {
 					System.out.println("The game is now over.");
 				}
-				gameOver = true;
-				winner = playerIndex;
+				this.gameOver = true;
+				p.incrementWins();
+				this.numGamesPlayed++;
 			}
 			else {
 				p.setBoardSpace(this.gameBoard.first());
@@ -119,23 +123,65 @@ public class BoardGamePlayer {
 	}
 	
 	public void printBoardState() {
-		
-	}
-	
-	public int[] reportGameInfo() {
-		if (gameOver) {
-			int[] gameInfo = new int[2];
-			gameInfo[0] = winner;
-			gameInfo[1] = playerArray[winner].getMoves();
-			return gameInfo;			
-		}
-		else {
-			System.out.println("Game has not been played yet");
-			return (new int[2]);
+		// print board points
+		System.out.println("Printing board points on right, players in center");
+		BoardSpace currentSpace = gameBoard.first();
+		boolean sameRow = false;
+		boolean sameCol = false;
+		for (int i = 0; i< 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				for (int k = 0; k < playerArray.length; k++) {
+					sameRow = false;
+					sameCol = false;
+					if (playerArray[k].getBoardSpace().getRow() == currentSpace.getRow()) {
+						sameRow = true;
+					}
+					if (playerArray[k].getBoardSpace().getCol() == currentSpace.getCol()) {
+						sameCol = true;
+					}
+					if (sameRow && sameCol) {
+						System.out.print(String.format("%10s", (char)('A' + k)));
+						System.out.print(String.format("%10s", currentSpace.getPoints()));
+						break;
+					}
+				}
+				if (!(sameRow && sameCol)) {
+					System.out.print(String.format("%20s", currentSpace.getPoints()));
+				}
+				if (currentSpace.getType().equals("End")) {
+					break;
+				}
+				currentSpace = gameBoard.nextSpace(currentSpace, 1);
+			}
+			System.out.println("");
+			if (currentSpace.getType().equals("End")) {
+				break;
+			}
 		}
 	}
 	
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
+	}
+	
+	public void resetGame() {
+		this.gameOver = false;
+		this.turn = 0;
+		for (int i = 0; i < playerArray.length; i++) {
+			Player p = playerArray[i];
+			p.setBoardSpace(gameBoard.first());
+		}
+	}
+	
+	public void printPlayerStatus() {
+		for (int i = 0; i < playerArray.length; i++) {
+			System.out.print(String.format("%40s", "Player " + (char)('A' + i) + " average moves/ win rate"));
+		}
+		System.out.println("");
+		for (int i = 0; i < playerArray.length; i++) {
+			System.out.print(String.format("%20s", (float)playerArray[i].getMoves() / this.numGamesPlayed));
+			System.out.print(String.format("%20s", (float)playerArray[i].getWins() / this.numGamesPlayed));
+		}
+		System.out.println("");
 	}
 }

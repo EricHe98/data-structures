@@ -8,6 +8,7 @@ public class Player {
 	private BoardSpace space;
 	private int score;
 	private int moves;
+	private int wins;
 	
 	public Player(DoublyLinkedList<BoardSpace> gameBoard, BoardSpace space, int score, int moves) {
 		this.gameBoard = gameBoard;
@@ -54,5 +55,13 @@ public class Player {
 	
 	public int getMoves() {
 		return this.moves;
+	}
+	
+	public void incrementWins() {
+		this.wins++;
+	}
+	
+	public int getWins() {
+		return this.wins;
 	}
 }
