@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Collections;
-
-import dsaj.sorting.*;
 
 public class FinalProject{
 	public static void main(String[] args) throws FileNotFoundException{
