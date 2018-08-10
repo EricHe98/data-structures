@@ -1,2 +1,4 @@
 src/data/jane_eyre.txt
 src/data/war_peace.txt
+src/data/war_peace.txt
+src/data/jane_eyre.txt
