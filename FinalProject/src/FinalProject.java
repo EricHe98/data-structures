@@ -6,10 +6,31 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class FinalProject{
+	static boolean verbose = false;
 	public static void main(String[] args) throws FileNotFoundException{
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Please enter the relative file path to books.txt.");
+		System.out.println("For example, src/books.txt");
+		System.out.println("If you enter nothing, the program will read src/books.txt by default");
+		String booksPath = sc.nextLine();
+		if (booksPath.isEmpty()) {
+			booksPath = "src/books.txt";
+		}
+		System.out.println("");
+		System.out.println("Now please enter the relative file path to words.txt: ");
+		System.out.println("If you enter nothing, the program will read src/words.txt by default");
+		String wordsPath = sc.nextLine();
+		sc.close();
+		if (wordsPath.isEmpty()) {
+			wordsPath = "src/words.txt";
+		}
+		System.out.println("");
+		System.out.println("Path to books.txt is " + booksPath);
+		System.out.println("Path to words.txt is " + wordsPath);
+		System.out.println("");
 		// read books.txt
 		// contains file paths to the books
-		File books = new File("src/books.txt");
+		File books = new File(booksPath);
 		Scanner booksScanner = new Scanner(books);
 		ArrayList<String> booksArray = new ArrayList<String>();
 		while (booksScanner.hasNext()) {
@@ -21,7 +42,7 @@ public class FinalProject{
 		
 		// read words.txt
 		// contains set of comparison words
-		File words = new File("src/words.txt");
+		File words = new File(wordsPath);
 		Scanner wordsScanner = new Scanner(words);
 		// put words in words.txt into hashmap
 		HashMap<String, Boolean> wordsHash = readWords(wordsScanner, false);
@@ -37,7 +58,9 @@ public class FinalProject{
 		for (int i = 1; i < booksHashArray.size(); i++) {
 			// total unique words, proper nouns, comparison book
 			// words in both hash maps, words in reference book, words in comparison book
+			System.out.println("");
 			compareBooks(booksHashArray.get(0), booksArray.get(0), booksHashArray.get(i), booksArray.get(i), wordsHash);
+			System.out.println("");
 		}
 		System.out.println("");
 		// words in focus book which are also in vocabulary list
@@ -80,7 +103,7 @@ public class FinalProject{
 				}
 			}
 		}
-		System.out.println("Words in both: " + wordsInBoth);
+		System.out.println("Words in both: " + wordsInBoth);		
 		System.out.println("Words in " + book1Name + " only: " + book1Only);
 		System.out.println("Words in " + book2Name + " only: " + book2Only);
 		System.out.println("Wordlist " + book1Name + " only: " + wordListBook1Only);
@@ -102,7 +125,25 @@ public class FinalProject{
 			System.out.println("Comparison Book: " + name);
 		}
 		System.out.println("Total words: " + book.size());
+		if (verbose) {
+			System.out.println("");
+			System.out.println("Words in book: ");
+			for (String word: book.keySet()) {
+				System.out.println(word);
+			}
+			System.out.println("");
+		}
 		System.out.println("Proper Nouns: " + properNounCount);
+		if (verbose) {
+			System.out.println("");
+			System.out.println("Proper Nouns: ");
+			for (String word: book.keySet()) {
+				if (book.get(word)) {
+					System.out.println(word);
+				}
+			}
+			System.out.println("");
+		}
 		System.out.println("");
 	}
 	
@@ -163,14 +204,14 @@ public class FinalProject{
 		for (String word: wordArray) {
 			if (word.endsWith("ing") && word.length() > 3) {
 				// check if root word exists
-				String trimmed = word.substring(word.length() - 4, word.length() - 1);
+				String trimmed = word.substring(0, word.length() - 3);
 				if (map.get(trimmed) != null) {
 					map.remove(word);
 				}
 			}
 			if (word.endsWith("ed") && word.length() > 2) {
 				// check if root word exists
-				String trimmed = word.substring(word.length() - 3, word.length() - 1);
+				String trimmed = word.substring(0, word.length() - 2);
 				if (map.get(trimmed) != null) {
 					map.remove(word);
 				}
